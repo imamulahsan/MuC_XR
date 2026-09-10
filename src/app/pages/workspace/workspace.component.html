@@ -1,0 +1,778 @@
+<div class="workspace-page">
+
+  <!-- ============================= -->
+  <!-- HEADER                        -->
+  <!-- ============================= -->
+
+  <header class="workspace-header">
+
+    <a
+      routerLink="/"
+      class="back-button"
+    >
+      ← Home
+    </a>
+
+
+    <div class="workspace-info">
+
+      <span
+        class="status-dot"
+        [style.background]="currentConfig().color"
+      ></span>
+
+
+      <div>
+
+        <h1>
+          Cobot Workspace
+        </h1>
+
+        <p>
+          System state:
+          <strong>
+            {{ currentConfig().label }}
+          </strong>
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <span class="prototype-badge">
+      WebXR Prototype
+    </span>
+
+  </header>
+
+
+  <main class="scene-wrapper">
+
+
+    <!-- ============================= -->
+    <!-- CONTROL PANEL                 -->
+    <!-- ============================= -->
+
+    <div class="control-panel">
+
+
+      <div class="panel-header">
+
+        <div>
+
+          <span class="panel-eyebrow">
+            Stacking Task
+          </span>
+
+          <h2>
+            Choose box order
+          </h2>
+
+        </div>
+
+
+        <span
+          class="panel-state-dot"
+          [style.background]="currentConfig().color"
+        ></span>
+
+      </div>
+
+
+      <!-- MESSAGE -->
+
+      <div class="current-message">
+
+        <span
+          class="message-dot"
+          [style.background]="currentConfig().color"
+        ></span>
+
+        <p>
+          {{ statusMessage() }}
+        </p>
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- STACK ORDER                   -->
+      <!-- ============================= -->
+
+      <div class="stack-order">
+
+
+        <!-- BOTTOM -->
+
+        <div class="order-row">
+
+          <div class="level-number">
+            1
+          </div>
+
+
+          <div class="order-content">
+
+            <label>
+              Bottom
+            </label>
+
+
+            <select
+              [value]="stackOrder()[0]"
+              [disabled]="isRunning()"
+              (change)="changeOrder(0, $event)"
+            >
+
+              <option value="red">
+                🔴 Red
+              </option>
+
+              <option value="green">
+                🟢 Green
+              </option>
+
+              <option value="blue">
+                🔵 Blue
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- MIDDLE -->
+
+        <div class="order-row">
+
+          <div class="level-number">
+            2
+          </div>
+
+
+          <div class="order-content">
+
+            <label>
+              Middle
+            </label>
+
+
+            <select
+              [value]="stackOrder()[1]"
+              [disabled]="isRunning()"
+              (change)="changeOrder(1, $event)"
+            >
+
+              <option value="red">
+                🔴 Red
+              </option>
+
+              <option value="green">
+                🟢 Green
+              </option>
+
+              <option value="blue">
+                🔵 Blue
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- TOP -->
+
+        <div class="order-row">
+
+          <div class="level-number">
+            3
+          </div>
+
+
+          <div class="order-content">
+
+            <label>
+              Top
+            </label>
+
+
+            <select
+              [value]="stackOrder()[2]"
+              [disabled]="isRunning()"
+              (change)="changeOrder(2, $event)"
+            >
+
+              <option value="red">
+                🔴 Red
+              </option>
+
+              <option value="green">
+                🟢 Green
+              </option>
+
+              <option value="blue">
+                🔵 Blue
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- TASK PREVIEW                  -->
+      <!-- ============================= -->
+
+      <div class="task-preview">
+
+        <span class="preview-label">
+          Your stack
+        </span>
+
+
+        <div class="preview-stack">
+
+          <!-- TOP -->
+
+          <div
+            class="preview-box"
+            [style.background]="boxes[stackOrder()[2]].color"
+          >
+            {{ boxes[stackOrder()[2]].label }}
+          </div>
+
+
+          <!-- MIDDLE -->
+
+          <div
+            class="preview-box"
+            [style.background]="boxes[stackOrder()[1]].color"
+          >
+            {{ boxes[stackOrder()[1]].label }}
+          </div>
+
+
+          <!-- BOTTOM -->
+
+          <div
+            class="preview-box"
+            [style.background]="boxes[stackOrder()[0]].color"
+          >
+            {{ boxes[stackOrder()[0]].label }}
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- PROGRESS                      -->
+      <!-- ============================= -->
+
+      <div class="progress-section">
+
+        <div class="progress-heading">
+
+          <span>
+            Progress
+          </span>
+
+          <strong>
+            {{ progressText() }}
+          </strong>
+
+        </div>
+
+
+        <div class="progress-bar">
+
+          <div
+            class="progress-fill"
+
+            [style.width.%]="
+              (completedBoxes().length / 3) * 100
+            "
+          ></div>
+
+        </div>
+
+
+        <div class="progress-boxes">
+
+          @for (
+            color of stackOrder();
+            track color;
+            let i = $index
+          ) {
+
+            <div
+              class="progress-item"
+
+              [class.complete]="
+                completedBoxes().includes(color)
+              "
+
+              [class.current]="
+                currentBox() === color
+              "
+            >
+
+              <span
+                class="progress-color"
+                [style.background]="boxes[color].color"
+              ></span>
+
+              <span>
+                {{ i + 1 }}.
+                {{ boxes[color].label }}
+              </span>
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- BUTTONS                       -->
+      <!-- ============================= -->
+
+      <button
+        type="button"
+        class="start-button"
+
+        [disabled]="isRunning()"
+
+        (click)="runStackingTask()"
+      >
+
+        {{
+          isRunning()
+            ? 'Stacking...'
+            : '▶ Start Stacking'
+        }}
+
+      </button>
+
+
+      <button
+        type="button"
+        class="reset-button"
+
+        [disabled]="isRunning()"
+
+        (click)="resetTask()"
+      >
+        Reset Task
+      </button>
+
+
+      <!-- ============================= -->
+      <!-- STATE TESTING                 -->
+      <!-- ============================= -->
+
+      <div class="state-testing">
+
+        <span>
+          Test system state
+        </span>
+
+
+        <div class="state-buttons">
+
+          <button
+            class="state-idle"
+            [disabled]="isRunning()"
+            (click)="setState('idle')"
+          >
+            Idle
+          </button>
+
+
+          <button
+            class="state-waiting"
+            [disabled]="isRunning()"
+            (click)="setState('waiting')"
+          >
+            Waiting
+          </button>
+
+
+          <button
+            class="state-error"
+            [disabled]="isRunning()"
+            (click)="setState('error')"
+          >
+            Error
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- A-FRAME SCENE                 -->
+    <!-- ============================= -->
+
+    <a-scene
+      embedded
+
+      background="
+        color: #E8EDF2
+      "
+
+      renderer="
+        antialias: true;
+        colorManagement: true
+      "
+
+      vr-mode-ui="
+        enabled: true
+      "
+    >
+
+
+      <!-- LIGHTING -->
+
+      <a-entity
+        light="
+          type: ambient;
+          color: #FFFFFF;
+          intensity: 0.9
+        "
+      ></a-entity>
+
+
+      <a-entity
+        position="-3 5 4"
+
+        light="
+          type: directional;
+          color: #FFFFFF;
+          intensity: 1
+        "
+      ></a-entity>
+
+
+      <!-- FLOOR -->
+
+      <a-plane
+        position="0 0 -3"
+
+        rotation="-90 0 0"
+
+        width="12"
+        height="12"
+
+        color="#CED4DA"
+      ></a-plane>
+
+
+      <!-- ============================= -->
+      <!-- TABLE                         -->
+      <!-- ============================= -->
+
+      <a-entity
+        id="worktable"
+
+        position="0 0 -3"
+      >
+
+        <a-box
+          position="0 1 0"
+
+          width="3"
+          height="0.12"
+          depth="1.4"
+
+          color="#87919B"
+        ></a-box>
+
+
+        <!-- LEGS -->
+
+        <a-box
+          position="-1.25 0.5 0.5"
+          width="0.12"
+          height="1"
+          depth="0.12"
+          color="#59636D"
+        ></a-box>
+
+
+        <a-box
+          position="1.25 0.5 0.5"
+          width="0.12"
+          height="1"
+          depth="0.12"
+          color="#59636D"
+        ></a-box>
+
+
+        <a-box
+          position="-1.25 0.5 -0.5"
+          width="0.12"
+          height="1"
+          depth="0.12"
+          color="#59636D"
+        ></a-box>
+
+
+        <a-box
+          position="1.25 0.5 -0.5"
+          width="0.12"
+          height="1"
+          depth="0.12"
+          color="#59636D"
+        ></a-box>
+
+      </a-entity>
+
+
+      <!-- ============================= -->
+      <!-- STACK TARGET                  -->
+      <!-- ============================= -->
+
+      <a-ring
+        position="0.15 1.075 -3"
+
+        rotation="-90 0 0"
+
+        radius-inner="0.21"
+        radius-outer="0.25"
+
+        color="#3A9D5D"
+      ></a-ring>
+
+
+      <!-- TARGET LABEL -->
+
+      <a-text
+        value="STACK TARGET"
+
+        position="-0.25 1.09 -2.72"
+
+        rotation="-90 0 0"
+
+        color="#3A9D5D"
+
+        width="1.5"
+      ></a-text>
+
+
+      <!-- ============================= -->
+      <!-- RED BOX                       -->
+      <!-- ============================= -->
+
+      <a-box
+        id="red-box"
+
+        position="0.60 1.20 -3"
+
+        width="0.28"
+        height="0.28"
+        depth="0.28"
+
+        color="#D94A4A"
+
+        [attr.animation__move]="
+          getBoxAnimation('red')
+        "
+      ></a-box>
+
+
+      <!-- ============================= -->
+      <!-- GREEN BOX                     -->
+      <!-- ============================= -->
+
+      <a-box
+        id="green-box"
+
+        position="0.95 1.20 -3"
+
+        width="0.28"
+        height="0.28"
+        depth="0.28"
+
+        color="#3A9D5D"
+
+        [attr.animation__move]="
+          getBoxAnimation('green')
+        "
+      ></a-box>
+
+
+      <!-- ============================= -->
+      <!-- BLUE BOX                      -->
+      <!-- ============================= -->
+
+      <a-box
+        id="blue-box"
+
+        position="1.30 1.20 -3"
+
+        width="0.28"
+        height="0.28"
+        depth="0.28"
+
+        color="#4C78A8"
+
+        [attr.animation__move]="
+          getBoxAnimation('blue')
+        "
+      ></a-box>
+
+
+      <!-- ============================= -->
+      <!-- COBOT                         -->
+      <!-- ============================= -->
+
+      <a-entity
+        appCobot
+
+        id="cobot-wrapper"
+
+        position="-0.75 1.06 -3"
+
+        scale="0.75 0.75 0.75"
+
+        [stateColor]="
+          currentConfig().color
+        "
+
+        [shoulderRotation]="
+          shoulderRotation()
+        "
+
+        [elbowRotation]="
+          elbowRotation()
+        "
+
+        [wristRotation]="
+          wristRotation()
+        "
+
+        [gripperClosed]="
+          gripperClosed()
+        "
+      ></a-entity>
+
+
+      <!-- ============================= -->
+      <!-- XR STATUS PANEL               -->
+      <!-- ============================= -->
+
+      <a-entity
+        id="xr-status-panel"
+
+        position="0 2.5 -4.5"
+      >
+
+        <a-plane
+          width="3.6"
+          height="0.95"
+
+          color="#FFFFFF"
+        ></a-plane>
+
+
+        <a-circle
+          position="-1.4 0.20 0.01"
+
+          radius="0.09"
+
+          [attr.color]="
+            currentConfig().color
+          "
+        ></a-circle>
+
+
+        <a-text
+          [attr.value]="
+            'SYSTEM STATE: ' +
+            currentConfig().label.toUpperCase()
+          "
+
+          position="-1.18 0.28 0.02"
+
+          color="#17202A"
+
+          width="3.4"
+        ></a-text>
+
+
+        <a-text
+          [attr.value]="
+            statusMessage()
+          "
+
+          position="-1.18 -0.02 0.02"
+
+          color="#6B7680"
+
+          width="3"
+        ></a-text>
+
+
+        <a-text
+          [attr.value]="
+            'STACK PROGRESS: ' +
+            progressText()
+          "
+
+          position="-1.18 -0.27 0.02"
+
+          color="#8A949D"
+
+          width="2.5"
+        ></a-text>
+
+      </a-entity>
+
+
+      <!-- ============================= -->
+      <!-- CAMERA                        -->
+      <!-- ============================= -->
+
+      <a-entity
+        id="camera-rig"
+
+        position="0 1.6 2"
+      >
+
+        <a-camera
+          look-controls
+          wasd-controls
+        >
+
+          <a-cursor
+            color="#17202A"
+            fuse="false"
+          ></a-cursor>
+
+        </a-camera>
+
+      </a-entity>
+
+
+    </a-scene>
+
+  </main>
+
+</div>

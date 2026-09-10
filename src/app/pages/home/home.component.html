@@ -1,0 +1,849 @@
+<div class="page">
+
+  <!-- ===================================== -->
+  <!-- NAVIGATION                            -->
+  <!-- ===================================== -->
+
+  <header class="navbar">
+
+    <a
+      routerLink="/"
+      class="brand"
+      aria-label="HRI XR Prototype home"
+    >
+      <span class="brand-symbol">
+        XR
+      </span>
+
+      <div class="brand-text">
+        <strong>HRI XR</strong>
+        <span>Prototype</span>
+      </div>
+    </a>
+
+
+    <nav>
+
+      <a href="#overview">
+        Overview
+      </a>
+
+      <a href="#interaction">
+        Interaction
+      </a>
+
+      <a href="#states">
+        System States
+      </a>
+
+      <a
+        routerLink="/workspace"
+        class="nav-workspace-button"
+      >
+        Open Workspace
+      </a>
+
+    </nav>
+
+  </header>
+
+
+  <main>
+
+    <!-- ===================================== -->
+    <!-- HERO                                  -->
+    <!-- ===================================== -->
+
+    <section class="hero">
+
+      <div class="hero-content">
+
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          Human–Robot Interaction · WebXR
+        </div>
+
+
+        <h1>
+          Making robot behavior
+          <span>easy to understand.</span>
+        </h1>
+
+
+        <p class="hero-description">
+          An immersive Human–Robot Interaction prototype exploring
+          how multimodal feedback can help users understand a
+          collaborative robot's current state, actions and task progress.
+        </p>
+
+
+        <div class="hero-actions">
+
+          <a
+            routerLink="/workspace"
+            class="primary-button"
+          >
+            Enter XR Workspace
+
+            <span class="button-arrow">
+              →
+            </span>
+          </a>
+
+
+          <a
+            href="#overview"
+            class="secondary-button"
+          >
+            Explore the concept
+          </a>
+
+        </div>
+
+
+        <div class="hero-meta">
+
+          <div class="meta-item">
+            <strong>4</strong>
+            <span>System states</span>
+          </div>
+
+          <div class="meta-divider"></div>
+
+          <div class="meta-item">
+            <strong>3</strong>
+            <span>Work objects</span>
+          </div>
+
+          <div class="meta-divider"></div>
+
+          <div class="meta-item">
+            <strong>XR</strong>
+            <span>Interactive workspace</span>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===================================== -->
+      <!-- HERO WORKSPACE PREVIEW                -->
+      <!-- ===================================== -->
+
+      <div class="hero-visual">
+
+        <div class="workspace-card">
+
+
+          <!-- PREVIEW HEADER -->
+
+          <div class="preview-header">
+
+            <div class="preview-title">
+
+              <span class="live-indicator"></span>
+
+              <div>
+                <strong>Cobot Workspace</strong>
+                <span>Interactive simulation</span>
+              </div>
+
+            </div>
+
+
+            <span class="xr-badge">
+              WEBXR
+            </span>
+
+          </div>
+
+
+          <!-- SYSTEM STATUS -->
+
+          <div class="status-panel">
+
+            <div class="status-main">
+
+              <span class="status-label">
+                SYSTEM STATE
+              </span>
+
+              <div class="status-value">
+
+                <span class="status-dot"></span>
+
+                WORKING
+
+              </div>
+
+            </div>
+
+
+            <div class="status-description">
+
+              <span>
+                Current action
+              </span>
+
+              <strong>
+                Stacking blue box
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- ROBOT SCENE -->
+
+          <div class="robot-scene">
+
+
+            <!-- DECORATIVE GRID -->
+
+            <div class="scene-grid"></div>
+
+
+            <!-- ROBOT -->
+
+            <div class="robot">
+
+              <div class="robot-base"></div>
+
+              <div class="robot-column"></div>
+
+              <div class="joint shoulder">
+
+                <div class="arm upper-arm"></div>
+
+                <div class="joint elbow">
+
+                  <div class="arm lower-arm"></div>
+
+                  <div class="joint wrist">
+
+                    <div class="gripper">
+                      <span></span>
+                      <span></span>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <!-- TABLE -->
+
+            <div class="table">
+
+              <div class="stack-target">
+
+                <span class="target-ring"></span>
+
+              </div>
+
+
+              <div class="box red-box"></div>
+
+              <div class="box green-box"></div>
+
+              <div class="box blue-box"></div>
+
+            </div>
+
+
+            <!-- TASK LABEL -->
+
+            <div class="scene-task">
+
+              <span class="task-number">
+                02
+              </span>
+
+              <div>
+                <span>Task progress</span>
+                <strong>Place blue box</strong>
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- PROGRESS -->
+
+          <div class="preview-progress">
+
+            <div class="progress-info">
+
+              <span>
+                STACKING TASK
+              </span>
+
+              <strong>
+                2 / 3
+              </strong>
+
+            </div>
+
+
+            <div class="progress-track">
+
+              <div class="progress-fill"></div>
+
+            </div>
+
+
+            <div class="progress-items">
+
+              <div class="progress-item complete">
+                <span class="small-box red"></span>
+                Red
+              </div>
+
+              <div class="progress-item current">
+                <span class="small-box blue"></span>
+                Blue
+              </div>
+
+              <div class="progress-item">
+                <span class="small-box green"></span>
+                Green
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- OVERVIEW                              -->
+    <!-- ===================================== -->
+
+    <section
+      id="overview"
+      class="section overview-section"
+    >
+
+      <div class="section-intro">
+
+        <div class="section-label">
+          01 · Overview
+        </div>
+
+
+        <h2>
+          A virtual cobot workplace focused on
+          <span>system awareness.</span>
+        </h2>
+
+
+        <p>
+          The prototype recreates the core idea of a multimodal
+          Human–Robot Interaction interface inside a simple XR
+          environment. Instead of only watching the robot move,
+          the user can understand what it is doing and what
+          happens next.
+        </p>
+
+      </div>
+
+
+      <div class="feature-grid">
+
+        <article class="feature-card">
+
+          <div class="feature-top">
+
+            <span class="feature-number">
+              01
+            </span>
+
+            <span class="feature-symbol">
+              ◫
+            </span>
+
+          </div>
+
+          <h3>
+            Virtual workplace
+          </h3>
+
+          <p>
+            A simplified 3D workspace containing a collaborative
+            robot, worktable, colored objects and task areas.
+          </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-top">
+
+            <span class="feature-number">
+              02
+            </span>
+
+            <span class="feature-symbol">
+              ◉
+            </span>
+
+          </div>
+
+          <h3>
+            Observable robot state
+          </h3>
+
+          <p>
+            Robot activity is communicated continuously so the user
+            can see whether the system is idle, working, waiting or
+            experiencing an error.
+          </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-top">
+
+            <span class="feature-number">
+              03
+            </span>
+
+            <span class="feature-symbol">
+              ≋
+            </span>
+
+          </div>
+
+          <h3>
+            Multimodal feedback
+          </h3>
+
+          <p>
+            Color, movement, textual explanations and task progress
+            reinforce one another to communicate the current system
+            behavior.
+          </p>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- INTERACTION                           -->
+    <!-- ===================================== -->
+
+    <section
+      id="interaction"
+      class="interaction-section"
+    >
+
+      <div class="interaction-inner">
+
+        <div class="section-intro interaction-heading">
+
+          <div class="section-label">
+            02 · Interaction
+          </div>
+
+          <h2>
+            From user preference to
+            <span>robot action.</span>
+          </h2>
+
+          <p>
+            The user defines how the objects should be stacked.
+            The cobot then performs the task while the interface
+            continuously communicates its progress.
+          </p>
+
+        </div>
+
+
+        <div class="workflow">
+
+
+          <!-- STEP 1 -->
+
+          <article class="workflow-step">
+
+            <div class="workflow-number">
+              1
+            </div>
+
+            <div class="workflow-content">
+
+              <span class="workflow-label">
+                User input
+              </span>
+
+              <h3>
+                Choose a stacking order
+              </h3>
+
+              <div class="mini-stack-order">
+
+                <div>
+                  <span>Top</span>
+                  <strong class="green-text">
+                    Green
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Middle</span>
+                  <strong class="red-text">
+                    Red
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Bottom</span>
+                  <strong class="blue-text">
+                    Blue
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <div class="workflow-arrow">
+            →
+          </div>
+
+
+          <!-- STEP 2 -->
+
+          <article class="workflow-step">
+
+            <div class="workflow-number">
+              2
+            </div>
+
+            <div class="workflow-content">
+
+              <span class="workflow-label">
+                Robot execution
+              </span>
+
+              <h3>
+                Cobot performs the task
+              </h3>
+
+              <div class="motion-preview">
+
+                <span class="mini-robot">
+                  ◉
+                </span>
+
+                <span class="motion-line"></span>
+
+                <span class="mini-box blue"></span>
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <div class="workflow-arrow">
+            →
+          </div>
+
+
+          <!-- STEP 3 -->
+
+          <article class="workflow-step">
+
+            <div class="workflow-number">
+              3
+            </div>
+
+            <div class="workflow-content">
+
+              <span class="workflow-label">
+                System feedback
+              </span>
+
+              <h3>
+                User sees what is happening
+              </h3>
+
+              <div class="feedback-preview">
+
+                <span class="feedback-status"></span>
+
+                <div>
+                  <strong>WORKING</strong>
+                  <span>Placing blue box · 2 / 3</span>
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- STATES                                -->
+    <!-- ===================================== -->
+
+    <section
+      id="states"
+      class="section states-section"
+    >
+
+      <div class="section-intro">
+
+        <div class="section-label">
+          03 · System States
+        </div>
+
+        <h2>
+          Four states.
+          <span>One consistent language.</span>
+        </h2>
+
+        <p>
+          Each robot state combines a distinct color with a textual
+          explanation and corresponding robot behavior.
+        </p>
+
+      </div>
+
+
+      <div class="states-grid">
+
+
+        <!-- IDLE -->
+
+        <article class="state-card idle">
+
+          <div class="state-card-top">
+
+            <span class="state-dot"></span>
+
+            <span class="state-code">
+              01
+            </span>
+
+          </div>
+
+          <h3>
+            Idle
+          </h3>
+
+          <p>
+            The robot is stationary and ready to receive the next
+            user-defined task.
+          </p>
+
+          <div class="state-example">
+            Ready for a command
+          </div>
+
+        </article>
+
+
+        <!-- WORKING -->
+
+        <article class="state-card working">
+
+          <div class="state-card-top">
+
+            <span class="state-dot"></span>
+
+            <span class="state-code">
+              02
+            </span>
+
+          </div>
+
+          <h3>
+            Working
+          </h3>
+
+          <p>
+            The robot is actively executing part of the selected task.
+          </p>
+
+          <div class="state-example">
+            Transporting green box
+          </div>
+
+        </article>
+
+
+        <!-- WAITING -->
+
+        <article class="state-card waiting">
+
+          <div class="state-card-top">
+
+            <span class="state-dot"></span>
+
+            <span class="state-code">
+              03
+            </span>
+
+          </div>
+
+          <h3>
+            Waiting
+          </h3>
+
+          <p>
+            The robot has paused because input or confirmation from
+            the user is required.
+          </p>
+
+          <div class="state-example">
+            Waiting for user action
+          </div>
+
+        </article>
+
+
+        <!-- ERROR -->
+
+        <article class="state-card error">
+
+          <div class="state-card-top">
+
+            <span class="state-dot"></span>
+
+            <span class="state-code">
+              04
+            </span>
+
+          </div>
+
+          <h3>
+            Error
+          </h3>
+
+          <p>
+            The task cannot continue normally and requires the
+            user's attention.
+          </p>
+
+          <div class="state-example">
+            Attention is required
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================== -->
+    <!-- SCOPE                                 -->
+    <!-- ===================================== -->
+
+    <section class="scope-section">
+
+      <div class="scope-card">
+
+        <div class="scope-content">
+
+          <div class="section-label">
+            Prototype Scope
+          </div>
+
+          <h2>
+            Start simple. Make the system state understandable.
+          </h2>
+
+          <p>
+            This prototype currently focuses on explicit robot states,
+            user-defined tasks and multimodal system feedback. Adaptive
+            interfaces and biosensing are intentionally outside the
+            current scope.
+          </p>
+
+        </div>
+
+
+        <a
+          routerLink="/workspace"
+          class="scope-button"
+        >
+
+          Launch Workspace
+
+          <span>
+            →
+          </span>
+
+        </a>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ===================================== -->
+  <!-- FOOTER                                -->
+  <!-- ===================================== -->
+
+  <footer>
+
+    <div class="footer-brand">
+
+      <span class="brand-symbol small">
+        XR
+      </span>
+
+      <div>
+        <strong>
+          HRI XR Prototype
+        </strong>
+
+        <span>
+          Human–Robot Interaction in WebXR
+        </span>
+      </div>
+
+    </div>
+
+
+    <span class="footer-note">
+      Research prototype · Angular + A-Frame
+    </span>
+
+  </footer>
+
+</div>
