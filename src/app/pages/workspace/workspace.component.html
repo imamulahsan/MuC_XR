@@ -1,4 +1,14 @@
-<div class="workspace-page">
+<div
+  class="workspace-page"
+
+  [class.user-moderate]="
+    currentUserState() === 'moderate'
+  "
+
+  [class.user-stressed]="
+    currentUserState() === 'stressed'
+  "
+>
 
   <!-- ============================= -->
   <!-- HEADER                        -->
@@ -30,6 +40,7 @@
 
         <p>
           System state:
+
           <strong>
             {{ currentConfig().label }}
           </strong>
@@ -51,11 +62,110 @@
 
 
     <!-- ============================= -->
+    <!-- ROBOT MOTION COLORMAP         -->
+    <!-- ============================= -->
+
+    <div class="activity-colormap">
+
+      <div class="activity-map-header">
+
+        <span class="activity-map-eyebrow">
+          Robot Motion
+        </span>
+
+        <strong>
+          {{ robotActivityLabel() }}
+        </strong>
+
+      </div>
+
+
+      <div class="activity-map-content">
+
+
+        <!-- LABELS -->
+
+        <div class="activity-labels">
+
+          <span>
+            High
+          </span>
+
+          <span>
+            Medium
+          </span>
+
+          <span>
+            Low
+          </span>
+
+          <span>
+            Idle
+          </span>
+
+        </div>
+
+
+        <!-- GRADIENT -->
+
+        <div class="activity-gradient">
+
+
+          <!-- CURRENT VALUE -->
+
+          <div
+            class="activity-marker"
+
+            [style.bottom.%]="
+              robotActivityMarkerPosition()
+            "
+          >
+
+            <span
+              class="activity-marker-dot"
+            ></span>
+
+
+            <span
+              class="activity-marker-value"
+            >
+              {{ robotActivityLevel() }}%
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="activity-map-footer">
+
+        <span class="activity-idle-key">
+          Idle
+        </span>
+
+        <span>
+          Motion intensity
+        </span>
+
+        <span class="activity-moving-key">
+          Moving
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- ============================= -->
     <!-- CONTROL PANEL                 -->
     <!-- ============================= -->
 
     <div class="control-panel">
 
+
+      <!-- PANEL HEADER -->
 
       <div class="panel-header">
 
@@ -80,17 +190,104 @@
       </div>
 
 
-      <!-- MESSAGE -->
+      <!-- ============================= -->
+      <!-- CURRENT MESSAGE               -->
+      <!-- ============================= -->
 
-      <div class="current-message">
+      <div
+        class="current-message"
+
+        [style.border-left-color]="
+          currentConfig().color
+        "
+      >
 
         <span
           class="message-dot"
           [style.background]="currentConfig().color"
         ></span>
 
+
         <p>
           {{ statusMessage() }}
+        </p>
+
+      </div>
+
+
+      <!-- ============================= -->
+      <!-- USER STATE                    -->
+      <!-- ============================= -->
+
+      <div class="user-state-section">
+
+        <div class="user-state-heading">
+
+          <span>
+            User State
+          </span>
+
+          <strong>
+            {{ currentUserConfig().label }}
+          </strong>
+
+        </div>
+
+
+        <div class="user-state-buttons">
+
+          <button
+            type="button"
+            class="user-state-button calm"
+
+            [class.active]="
+              currentUserState() === 'calm'
+            "
+
+            [disabled]="isRunning()"
+
+            (click)="setUserState('calm')"
+          >
+            Calm
+          </button>
+
+
+          <button
+            type="button"
+            class="user-state-button moderate"
+
+            [class.active]="
+              currentUserState() === 'moderate'
+            "
+
+            [disabled]="isRunning()"
+
+            (click)="setUserState('moderate')"
+          >
+            Moderate
+          </button>
+
+
+          <button
+            type="button"
+            class="user-state-button stressed"
+
+            [class.active]="
+              currentUserState() === 'stressed'
+            "
+
+            [disabled]="isRunning()"
+
+            (click)="setUserState('stressed')"
+          >
+            Stressed
+          </button>
+
+        </div>
+
+
+        <p class="user-state-description">
+          {{ currentUserConfig().description }}
         </p>
 
       </div>
@@ -241,31 +438,31 @@
 
         <div class="preview-stack">
 
-          <!-- TOP -->
-
           <div
             class="preview-box"
-            [style.background]="boxes[stackOrder()[2]].color"
+            [style.background]="
+              boxes[stackOrder()[2]].color
+            "
           >
             {{ boxes[stackOrder()[2]].label }}
           </div>
 
 
-          <!-- MIDDLE -->
-
           <div
             class="preview-box"
-            [style.background]="boxes[stackOrder()[1]].color"
+            [style.background]="
+              boxes[stackOrder()[1]].color
+            "
           >
             {{ boxes[stackOrder()[1]].label }}
           </div>
 
 
-          <!-- BOTTOM -->
-
           <div
             class="preview-box"
-            [style.background]="boxes[stackOrder()[0]].color"
+            [style.background]="
+              boxes[stackOrder()[0]].color
+            "
           >
             {{ boxes[stackOrder()[0]].label }}
           </div>
@@ -307,47 +504,57 @@
         </div>
 
 
-        <div class="progress-boxes">
+        @if (
+          currentUserState() !== 'stressed'
+        ) {
 
-          @for (
-            color of stackOrder();
-            track color;
-            let i = $index
-          ) {
+          <div class="progress-boxes">
 
-            <div
-              class="progress-item"
+            @for (
+              color of stackOrder();
+              track color;
+              let i = $index
+            ) {
 
-              [class.complete]="
-                completedBoxes().includes(color)
-              "
+              <div
+                class="progress-item"
 
-              [class.current]="
-                currentBox() === color
-              "
-            >
+                [class.complete]="
+                  completedBoxes().includes(color)
+                "
 
-              <span
-                class="progress-color"
-                [style.background]="boxes[color].color"
-              ></span>
+                [class.current]="
+                  currentBox() === color
+                "
+              >
 
-              <span>
-                {{ i + 1 }}.
-                {{ boxes[color].label }}
-              </span>
+                <span
+                  class="progress-color"
 
-            </div>
+                  [style.background]="
+                    boxes[color].color
+                  "
+                ></span>
 
-          }
 
-        </div>
+                <span>
+                  {{ i + 1 }}.
+                  {{ boxes[color].label }}
+                </span>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
 
       </div>
 
 
       <!-- ============================= -->
-      <!-- BUTTONS                       -->
+      <!-- MAIN BUTTONS                  -->
       <!-- ============================= -->
 
       <button
@@ -384,44 +591,56 @@
       <!-- STATE TESTING                 -->
       <!-- ============================= -->
 
-      <div class="state-testing">
+      @if (
+        currentUserState() !== 'stressed'
+      ) {
 
-        <span>
-          Test system state
-        </span>
+        <div class="state-testing">
 
-
-        <div class="state-buttons">
-
-          <button
-            class="state-idle"
-            [disabled]="isRunning()"
-            (click)="setState('idle')"
-          >
-            Idle
-          </button>
+          <span>
+            Test system state
+          </span>
 
 
-          <button
-            class="state-waiting"
-            [disabled]="isRunning()"
-            (click)="setState('waiting')"
-          >
-            Waiting
-          </button>
+          <div class="state-buttons">
+
+            <button
+              class="state-idle"
+
+              [disabled]="isRunning()"
+
+              (click)="setState('idle')"
+            >
+              Idle
+            </button>
 
 
-          <button
-            class="state-error"
-            [disabled]="isRunning()"
-            (click)="setState('error')"
-          >
-            Error
-          </button>
+            <button
+              class="state-waiting"
+
+              [disabled]="isRunning()"
+
+              (click)="setState('waiting')"
+            >
+              Waiting
+            </button>
+
+
+            <button
+              class="state-error"
+
+              [disabled]="isRunning()"
+
+              (click)="setState('error')"
+            >
+              Error
+            </button>
+
+          </div>
 
         </div>
 
-      </div>
+      }
 
     </div>
 
@@ -505,40 +724,46 @@
         ></a-box>
 
 
-        <!-- LEGS -->
-
         <a-box
           position="-1.25 0.5 0.5"
+
           width="0.12"
           height="1"
           depth="0.12"
+
           color="#59636D"
         ></a-box>
 
 
         <a-box
           position="1.25 0.5 0.5"
+
           width="0.12"
           height="1"
           depth="0.12"
+
           color="#59636D"
         ></a-box>
 
 
         <a-box
           position="-1.25 0.5 -0.5"
+
           width="0.12"
           height="1"
           depth="0.12"
+
           color="#59636D"
         ></a-box>
 
 
         <a-box
           position="1.25 0.5 -0.5"
+
           width="0.12"
           height="1"
           depth="0.12"
+
           color="#59636D"
         ></a-box>
 
@@ -561,8 +786,6 @@
       ></a-ring>
 
 
-      <!-- TARGET LABEL -->
-
       <a-text
         value="STACK TARGET"
 
@@ -577,7 +800,7 @@
 
 
       <!-- ============================= -->
-      <!-- RED BOX                       -->
+      <!-- BOXES                         -->
       <!-- ============================= -->
 
       <a-box
@@ -597,10 +820,6 @@
       ></a-box>
 
 
-      <!-- ============================= -->
-      <!-- GREEN BOX                     -->
-      <!-- ============================= -->
-
       <a-box
         id="green-box"
 
@@ -617,10 +836,6 @@
         "
       ></a-box>
 
-
-      <!-- ============================= -->
-      <!-- BLUE BOX                      -->
-      <!-- ============================= -->
 
       <a-box
         id="blue-box"
@@ -682,6 +897,10 @@
         id="xr-status-panel"
 
         position="0 2.5 -4.5"
+
+        [attr.scale]="
+          xrStatusScale()
+        "
       >
 
         <a-plane
@@ -695,7 +914,9 @@
         <a-circle
           position="-1.4 0.20 0.01"
 
-          radius="0.09"
+          [attr.radius]="
+            xrStatusRadius()
+          "
 
           [attr.color]="
             currentConfig().color
@@ -732,7 +953,7 @@
 
         <a-text
           [attr.value]="
-            'STACK PROGRESS: ' +
+            'PROGRESS: ' +
             progressText()
           "
 

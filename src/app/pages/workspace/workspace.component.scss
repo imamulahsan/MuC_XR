@@ -11,6 +11,10 @@
 }
 
 
+/* ================================ */
+/* PAGE                             */
+/* ================================ */
+
 .workspace-page {
   width: 100%;
   height: 100vh;
@@ -102,11 +106,23 @@
 }
 
 
+.workspace-info p strong {
+  color: #59636d;
+}
+
+
 .status-dot {
   width: 10px;
   height: 10px;
 
+  flex-shrink: 0;
+
   border-radius: 50%;
+
+  transition:
+    width 150ms ease,
+    height 150ms ease,
+    box-shadow 150ms ease;
 }
 
 
@@ -231,6 +247,10 @@ a-scene {
   height: 11px;
 
   border-radius: 50%;
+
+  transition:
+    box-shadow 150ms ease,
+    transform 150ms ease;
 }
 
 
@@ -248,6 +268,15 @@ a-scene {
   background: #f5f7f8;
 
   border-radius: 8px;
+
+  border-left:
+    2px solid transparent;
+
+  transition:
+    border-width 150ms ease,
+    padding 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
 }
 
 
@@ -271,6 +300,136 @@ a-scene {
   font-size: 10px;
 
   line-height: 1.5;
+
+  transition:
+    font-size 150ms ease,
+    font-weight 150ms ease,
+    color 150ms ease;
+}
+
+
+/* ================================ */
+/* USER STATE                       */
+/* ================================ */
+
+.user-state-section {
+  margin-top: 14px;
+
+  padding:
+    13px 0 14px;
+
+  border-top:
+    1px solid #e5e8eb;
+
+  border-bottom:
+    1px solid #e5e8eb;
+}
+
+
+.user-state-heading {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 8px;
+}
+
+
+.user-state-heading span {
+  color: #89939c;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+}
+
+
+.user-state-heading strong {
+  color: #17202a;
+
+  font-size: 10px;
+}
+
+
+.user-state-buttons {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 5px;
+}
+
+
+.user-state-button {
+  padding: 7px 3px;
+
+  background: #ffffff;
+
+  border:
+    1px solid #dde2e6;
+
+  border-radius: 6px;
+
+  color: #69747d;
+
+  font-size: 8px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+
+.user-state-button:hover:not(:disabled) {
+  background: #f5f7f8;
+
+  transform:
+    translateY(-1px);
+}
+
+
+.user-state-button.active {
+  background: #edf2f6;
+
+  border-color: #4c78a8;
+
+  color: #17202a;
+}
+
+
+.user-state-button.stressed.active {
+  border-color: #59636d;
+
+  background: #eef1f3;
+}
+
+
+.user-state-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+.user-state-description {
+  margin:
+    7px 0 0;
+
+  color: #89939c;
+
+  font-size: 8px;
+
+  line-height: 1.45;
 }
 
 
@@ -411,7 +570,8 @@ a-scene {
   justify-content: center;
 
   border:
-    2px solid rgba(255, 255, 255, 0.7);
+    2px solid
+    rgba(255, 255, 255, 0.7);
 
   border-radius: 4px;
 
@@ -579,6 +739,20 @@ a-scene {
 }
 
 
+.reset-button:hover:not(:disabled) {
+  background: #f4f6f7;
+
+  color: #17202a;
+}
+
+
+.reset-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
 /* ================================ */
 /* STATE TESTING                    */
 /* ================================ */
@@ -637,18 +811,407 @@ a-scene {
 }
 
 
-.state-idle:hover {
+.state-buttons button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+.state-idle:hover:not(:disabled) {
   border-color: #4c78a8;
 }
 
 
-.state-waiting:hover {
+.state-waiting:hover:not(:disabled) {
   border-color: #d6a32a;
 }
 
 
-.state-error:hover {
+.state-error:hover:not(:disabled) {
   border-color: #c94747;
+}
+
+
+/* ================================ */
+/* ROBOT ACTIVITY COLORMAP          */
+/* ================================ */
+
+.activity-colormap {
+  position: absolute;
+
+  top: 20px;
+  left: 20px;
+
+  z-index: 40;
+
+  width: 155px;
+
+  padding: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  border:
+    1px solid #dde2e6;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 16px 40px
+    rgba(23, 32, 42, 0.12);
+}
+
+
+/* ================================ */
+/* ACTIVITY HEADER                  */
+/* ================================ */
+
+.activity-map-header {
+  margin-bottom: 13px;
+}
+
+
+.activity-map-eyebrow {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #89939c;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+}
+
+
+.activity-map-header strong {
+  color: #17202a;
+
+  font-size: 12px;
+}
+
+
+/* ================================ */
+/* ACTIVITY MAP                     */
+/* ================================ */
+
+.activity-map-content {
+  height: 220px;
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 10px;
+}
+
+
+/* ================================ */
+/* SCALE LABELS                     */
+/* ================================ */
+
+.activity-labels {
+  height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  padding:
+    2px 0;
+
+  color: #7b868f;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  text-align: right;
+}
+
+
+/* ================================ */
+/* GRADIENT                         */
+/* ================================ */
+
+.activity-gradient {
+  position: relative;
+
+  width: 30px;
+  height: 100%;
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      to top,
+
+      #3a9d5d 0%,
+
+      #77b650 20%,
+
+      #b4c549 38%,
+
+      #d6c63e 52%,
+
+      #e2a33b 67%,
+
+      #df783b 82%,
+
+      #d94a4a 100%
+    );
+
+  border:
+    2px solid
+    rgba(255, 255, 255, 0.85);
+
+  box-shadow:
+    0 0 0 1px
+    rgba(23, 32, 42, 0.08);
+}
+
+
+/* ================================ */
+/* CURRENT ACTIVITY MARKER          */
+/* ================================ */
+
+.activity-marker {
+  position: absolute;
+
+  left: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  transform:
+    translate(-50%, 50%);
+
+  transition:
+    bottom 500ms
+    cubic-bezier(
+      0.4,
+      0,
+      0.2,
+      1
+    );
+
+  pointer-events: none;
+}
+
+
+.activity-marker-dot {
+  width: 38px;
+  height: 8px;
+
+  flex-shrink: 0;
+
+  background: #ffffff;
+
+  border:
+    2px solid #17202a;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 2px 5px
+    rgba(23, 32, 42, 0.25);
+}
+
+
+.activity-marker-value {
+  position: absolute;
+
+  left: 43px;
+
+  min-width: 31px;
+
+  padding: 3px 5px;
+
+  background: #17202a;
+
+  border-radius: 4px;
+
+  color: white;
+
+  font-size: 7px;
+  font-weight: 700;
+
+  text-align: center;
+
+  white-space: nowrap;
+}
+
+
+/* ================================ */
+/* ACTIVITY FOOTER                  */
+/* ================================ */
+
+.activity-map-footer {
+  margin-top: 11px;
+
+  padding-top: 9px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+
+  border-top:
+    1px solid #e5e8eb;
+
+  color: #89939c;
+
+  font-size: 7px;
+
+  text-align: center;
+}
+
+
+.activity-idle-key {
+  color: #3a9d5d;
+
+  font-weight: 700;
+}
+
+
+.activity-moving-key {
+  color: #d94a4a;
+
+  font-weight: 700;
+}
+
+
+/* ================================ */
+/* MODERATE ADAPTATION              */
+/* ================================ */
+
+.workspace-page.user-moderate
+.current-message {
+  border-left-width: 4px;
+
+  background: #f1f5f8;
+}
+
+
+.workspace-page.user-moderate
+.current-message p {
+  color: #4e5963;
+
+  font-size: 10.5px;
+
+  font-weight: 550;
+}
+
+
+.workspace-page.user-moderate
+.status-dot {
+  width: 12px;
+  height: 12px;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(76, 120, 168, 0.1);
+}
+
+
+.workspace-page.user-moderate
+.panel-state-dot {
+  transform:
+    scale(1.15);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(23, 32, 42, 0.06);
+}
+
+
+/* ================================ */
+/* STRESSED ADAPTATION              */
+/* ================================ */
+
+.workspace-page.user-stressed
+.current-message {
+  border-left-width: 6px;
+
+  padding: 13px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 1px
+    rgba(23, 32, 42, 0.08),
+    0 7px 18px
+    rgba(23, 32, 42, 0.06);
+}
+
+
+.workspace-page.user-stressed
+.current-message p {
+  color: #3f4a54;
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  line-height: 1.55;
+}
+
+
+.workspace-page.user-stressed
+.message-dot {
+  width: 9px;
+  height: 9px;
+}
+
+
+.workspace-page.user-stressed
+.status-dot {
+  width: 14px;
+  height: 14px;
+
+  box-shadow:
+    0 0 0 5px
+    rgba(76, 120, 168, 0.12);
+}
+
+
+.workspace-page.user-stressed
+.panel-state-dot {
+  transform:
+    scale(1.3);
+
+  box-shadow:
+    0 0 0 5px
+    rgba(23, 32, 42, 0.07);
+}
+
+
+.workspace-page.user-stressed
+.progress-bar {
+  height: 8px;
+}
+
+
+.workspace-page.user-stressed
+.progress-heading {
+  color: #4d5963;
+
+  font-size: 10px;
+}
+
+
+.workspace-page.user-stressed
+.start-button {
+  padding: 13px;
+
+  font-size: 12px;
 }
 
 
@@ -685,6 +1248,65 @@ a-scene {
     width: 235px;
 
     padding: 13px;
+  }
+
+
+  .user-state-button {
+    font-size: 7px;
+
+    padding:
+      7px 2px;
+  }
+
+
+  /*
+   * Compact robot activity map.
+   */
+
+  .activity-colormap {
+    top: 10px;
+    left: 10px;
+
+    width: 105px;
+
+    padding: 10px;
+  }
+
+
+  .activity-map-header strong {
+    font-size: 10px;
+  }
+
+
+  .activity-map-content {
+    height: 155px;
+
+    gap: 6px;
+  }
+
+
+  .activity-gradient {
+    width: 22px;
+  }
+
+
+  .activity-marker-dot {
+    width: 28px;
+  }
+
+
+  .activity-marker-value {
+    display: none;
+  }
+
+
+  .activity-labels {
+    font-size: 7px;
+  }
+
+
+  .activity-map-footer {
+    font-size: 6px;
   }
 
 }

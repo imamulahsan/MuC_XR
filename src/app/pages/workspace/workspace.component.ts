@@ -16,6 +16,12 @@ type RobotState =
   | 'error';
 
 
+type UserState =
+  | 'calm'
+  | 'moderate'
+  | 'stressed';
+
+
 type BoxColor =
   | 'red'
   | 'green'
@@ -26,6 +32,13 @@ interface RobotStateConfig {
   label: string;
   message: string;
   color: string;
+}
+
+
+interface UserStateConfig {
+  label: string;
+  description: string;
+  speedMultiplier: number;
 }
 
 
@@ -63,7 +76,7 @@ export class WorkspaceComponent {
 
   /*
    * =====================================
-   * SYSTEM STATES
+   * ROBOT STATES
    * =====================================
    */
 
@@ -100,12 +113,164 @@ export class WorkspaceComponent {
     signal<RobotState>('idle');
 
 
-  readonly statusMessage =
-    signal('Choose a stacking order and start the task');
-
-
   readonly currentConfig = computed(() => {
     return this.states[this.currentState()];
+  });
+
+
+  /*
+   * =====================================
+   * USER STATES
+   * =====================================
+   *
+   * Manual selection only.
+   * No biosensing or machine learning.
+   */
+
+  readonly userStates: Record<UserState, UserStateConfig> = {
+
+    calm: {
+      label: 'Calm',
+      description: 'Normal feedback and normal task speed',
+      speedMultiplier: 1
+    },
+
+    moderate: {
+      label: 'Moderate',
+      description: 'Clearer highlighting and simpler feedback',
+      speedMultiplier: 1
+    },
+
+    stressed: {
+      label: 'Stressed',
+      description: 'Simplified feedback and slower task execution',
+      speedMultiplier: 1.5
+    }
+
+  };
+
+
+  readonly currentUserState =
+    signal<UserState>('calm');
+
+
+  readonly currentUserConfig = computed(() => {
+    return this.userStates[this.currentUserState()];
+  });
+
+
+  /*
+   * =====================================
+   * STATUS MESSAGE
+   * =====================================
+   */
+
+  readonly statusMessage =
+    signal(
+      'Choose a stacking order and start the task'
+    );
+
+
+  /*
+   * =====================================
+   * ADAPTIVE XR VISUAL EMPHASIS
+   * =====================================
+   */
+
+  readonly xrStatusScale = computed(() => {
+
+    switch (this.currentUserState()) {
+
+      case 'moderate':
+        return '1.06 1.06 1.06';
+
+      case 'stressed':
+        return '1.12 1.12 1.12';
+
+      default:
+        return '1 1 1';
+
+    }
+
+  });
+
+
+  readonly xrStatusRadius = computed(() => {
+
+    switch (this.currentUserState()) {
+
+      case 'moderate':
+        return 0.12;
+
+      case 'stressed':
+        return 0.15;
+
+      default:
+        return 0.09;
+
+    }
+
+  });
+
+
+  /*
+   * =====================================
+   * ROBOT MOTION / ACTIVITY
+   * =====================================
+   *
+   * Separate from RobotState.
+   *
+   * 0   = idle / stationary
+   * 100 = high motion
+   *
+   * The left-side colormap uses this.
+   */
+
+  readonly robotActivityLevel =
+    signal(5);
+
+
+  readonly robotActivityLabel = computed(() => {
+
+    const level =
+      this.robotActivityLevel();
+
+
+    if (level >= 80) {
+      return 'High motion';
+    }
+
+
+    if (level >= 50) {
+      return 'Active';
+    }
+
+
+    if (level >= 20) {
+      return 'Low motion';
+    }
+
+
+    return 'Idle';
+
+  });
+
+
+  /*
+   * Keeps the visual marker inside
+   * the gradient container.
+   */
+
+  readonly robotActivityMarkerPosition = computed(() => {
+
+    return Math.min(
+      97,
+      Math.max(
+        3,
+        this.robotActivityLevel()
+      )
+    );
+
   });
 
 
@@ -138,18 +303,17 @@ export class WorkspaceComponent {
   };
 
 
-  /*
-   * Current physical positions.
-   */
-
   readonly boxPositions =
     signal<Record<BoxColor, string>>({
 
-      red: this.boxes.red.startPosition,
+      red:
+        this.boxes.red.startPosition,
 
-      green: this.boxes.green.startPosition,
+      green:
+        this.boxes.green.startPosition,
 
-      blue: this.boxes.blue.startPosition
+      blue:
+        this.boxes.blue.startPosition
 
     });
 
@@ -157,11 +321,11 @@ export class WorkspaceComponent {
   /*
    * =====================================
    * STACK ORDER
+   * =====================================
    *
    * index 0 = bottom
    * index 1 = middle
    * index 2 = top
-   * =====================================
    */
 
   readonly stackOrder =
@@ -182,10 +346,6 @@ export class WorkspaceComponent {
 
   readonly stackZ = -3;
 
-  /*
-   * Table surface is about y = 1.06.
-   * Box height is 0.28.
-   */
   readonly stackBaseY = 1.20;
 
   readonly boxHeight = 0.28;
@@ -209,9 +369,16 @@ export class WorkspaceComponent {
     signal<BoxColor | null>(null);
 
 
+  readonly progressText = computed(() => {
+
+    return `${this.completedBoxes().length} / 3`;
+
+  });
+
+
   /*
    * =====================================
-   * ROBOT
+   * ROBOT JOINTS
    * =====================================
    */
 
@@ -232,10 +399,7 @@ export class WorkspaceComponent {
 
 
   /*
-   * Different approximate pickup poses.
-   *
-   * These are symbolic poses.
-   * We are not doing inverse kinematics yet.
+   * Approximate symbolic pickup poses.
    */
 
   readonly pickupPoses:
@@ -264,41 +428,147 @@ export class WorkspaceComponent {
 
   /*
    * =====================================
-   * PROGRESS
+   * USER STATE SELECTION
    * =====================================
    */
 
-  readonly progressText = computed(() => {
+  setUserState(
+    state: UserState
+  ): void {
 
-    return `${this.completedBoxes().length} / 3`;
-
-  });
-
-
-  /*
-   * =====================================
-   * MANUAL STATE
-   * =====================================
-   */
-
-  setState(state: RobotState): void {
+    /*
+     * Keep adaptation fixed while a task
+     * is running.
+     */
 
     if (this.isRunning()) {
       return;
     }
 
-    this.currentState.set(state);
 
-    this.statusMessage.set(
-      this.states[state].message
-    );
+    this.currentUserState.set(state);
+
+
+    switch (state) {
+
+      case 'calm':
+
+        this.statusMessage.set(
+          'Normal feedback enabled'
+        );
+
+        break;
+
+
+      case 'moderate':
+
+        this.statusMessage.set(
+          'Clearer feedback enabled'
+        );
+
+        break;
+
+
+      case 'stressed':
+
+        this.statusMessage.set(
+          'Simplified feedback enabled. Task motion will be slower.'
+        );
+
+        break;
+
+    }
 
   }
 
 
   /*
    * =====================================
-   * USER CHANGES STACKING ORDER
+   * MANUAL ROBOT STATE TESTING
+   * =====================================
+   */
+
+  setState(
+    state: RobotState
+  ): void {
+
+    if (this.isRunning()) {
+      return;
+    }
+
+
+    this.currentState.set(state);
+
+
+    /*
+     * Update the motion visualization.
+     *
+     * Note:
+     * an error does not automatically mean
+     * that the robot is physically moving.
+     */
+
+    switch (state) {
+
+      case 'idle':
+
+        this.robotActivityLevel.set(5);
+
+        this.setAdaptiveMessage(
+          'Ready for a command',
+          'Ready for the next task',
+          'Ready'
+        );
+
+        break;
+
+
+      case 'working':
+
+        this.robotActivityLevel.set(70);
+
+        this.setAdaptiveMessage(
+          'Robot is performing a task',
+          'Task in progress',
+          'Working safely'
+        );
+
+        break;
+
+
+      case 'waiting':
+
+        this.robotActivityLevel.set(10);
+
+        this.setAdaptiveMessage(
+          'Waiting for user action',
+          'Waiting for your input',
+          'Waiting for you'
+        );
+
+        break;
+
+
+      case 'error':
+
+        this.robotActivityLevel.set(5);
+
+        this.setAdaptiveMessage(
+          'Attention is required',
+          'Task stopped. Please check the system.',
+          'Task paused. Please check when ready.'
+        );
+
+        break;
+
+    }
+
+  }
+
+
+  /*
+   * =====================================
+   * CHANGE STACK ORDER
    * =====================================
    */
 
@@ -325,27 +595,13 @@ export class WorkspaceComponent {
     ];
 
 
-    /*
-     * Find where the newly-selected
-     * color already exists.
-     */
-
     const existingIndex =
       currentOrder.indexOf(newColor);
 
 
     /*
-     * Swap instead of allowing duplicates.
-     *
-     * Example:
-     *
-     * Blue Red Green
-     *
-     * User changes Bottom to Red
-     *
-     * becomes:
-     *
-     * Red Blue Green
+     * Swap instead of allowing duplicate
+     * colors.
      */
 
     if (
@@ -355,6 +611,7 @@ export class WorkspaceComponent {
 
       const oldColor =
         currentOrder[index];
+
 
       currentOrder[existingIndex] =
         oldColor;
@@ -371,10 +628,18 @@ export class WorkspaceComponent {
     );
 
 
-    this.currentState.set('waiting');
+    this.currentState.set(
+      'waiting'
+    );
 
-    this.statusMessage.set(
-      'Stacking order updated. Press Start Stacking.'
+
+    this.robotActivityLevel.set(5);
+
+
+    this.setAdaptiveMessage(
+      'Stacking order updated. Press Start Stacking.',
+      'Order updated. Press Start.',
+      'Order ready. Press Start.'
     );
 
   }
@@ -403,13 +668,23 @@ export class WorkspaceComponent {
     try {
 
       /*
-       * RESET EVERYTHING FIRST
+       * =================================
+       * PREPARE
+       * =================================
        */
 
-      this.currentState.set('working');
+      this.currentState.set(
+        'working'
+      );
 
-      this.statusMessage.set(
-        'Preparing the workspace'
+
+      this.robotActivityLevel.set(25);
+
+
+      this.setAdaptiveMessage(
+        'Preparing the workspace',
+        'Preparing task',
+        'Preparing...'
       );
 
 
@@ -420,11 +695,13 @@ export class WorkspaceComponent {
       this.gripperClosed.set(false);
 
 
-      await this.delay(900);
+      await this.taskDelay(900);
 
 
       /*
+       * =================================
        * STACK EACH BOX
+       * =================================
        */
 
       const order =
@@ -458,28 +735,48 @@ export class WorkspaceComponent {
 
 
       /*
+       * =================================
        * RETURN HOME
+       * =================================
        */
 
       this.currentBox.set(null);
 
-      this.statusMessage.set(
-        'Returning to home position'
+
+      this.robotActivityLevel.set(85);
+
+
+      this.setAdaptiveMessage(
+        'Returning to home position',
+        'Returning home',
+        'Finishing task'
       );
+
 
       this.moveRobotHome();
 
-      await this.delay(1100);
+
+      await this.taskDelay(1100);
 
 
       /*
-       * TASK COMPLETE
+       * =================================
+       * COMPLETE
+       * =================================
        */
 
-      this.currentState.set('idle');
+      this.currentState.set(
+        'idle'
+      );
 
-      this.statusMessage.set(
-        'Stacking task completed successfully'
+
+      this.robotActivityLevel.set(5);
+
+
+      this.setAdaptiveMessage(
+        'Stacking task completed successfully',
+        'Stacking complete',
+        'Task complete'
       );
 
     }
@@ -487,10 +784,24 @@ export class WorkspaceComponent {
 
       console.error(error);
 
-      this.currentState.set('error');
 
-      this.statusMessage.set(
-        'The stacking task could not be completed'
+      this.currentState.set(
+        'error'
+      );
+
+
+      /*
+       * Error and motion are intentionally
+       * separate concepts.
+       */
+
+      this.robotActivityLevel.set(5);
+
+
+      this.setAdaptiveMessage(
+        'The stacking task could not be completed',
+        'Task stopped. Please check the system.',
+        'Task paused. Please check when ready.'
       );
 
     }
@@ -520,6 +831,7 @@ export class WorkspaceComponent {
 
     this.currentBox.set(color);
 
+
     const box =
       this.boxes[color];
 
@@ -529,16 +841,28 @@ export class WorkspaceComponent {
 
 
     /*
-     * -------------------------------------
+     * =================================
      * STEP 1
      * MOVE TOWARD BOX
-     * -------------------------------------
+     * =================================
      */
 
-    this.currentState.set('working');
+    this.currentState.set(
+      'working'
+    );
 
-    this.statusMessage.set(
-      `Moving toward the ${box.label.toLowerCase()} box`
+
+    this.robotActivityLevel.set(90);
+
+
+    this.setAdaptiveMessage(
+
+      `Moving toward the ${box.label.toLowerCase()} box`,
+
+      `Moving to ${box.label.toLowerCase()} box`,
+
+      'Moving to box'
+
     );
 
 
@@ -546,45 +870,65 @@ export class WorkspaceComponent {
       pose.shoulder
     );
 
+
     this.elbowRotation.set(
       pose.elbow
     );
+
 
     this.wristRotation.set(
       pose.wrist
     );
 
 
-    await this.delay(1000);
+    await this.taskDelay(1000);
 
 
     /*
-     * -------------------------------------
+     * =================================
      * STEP 2
-     * CLOSE GRIPPER
-     * -------------------------------------
+     * GRASP
+     * =================================
      */
 
-    this.statusMessage.set(
-      `Grasping the ${box.label.toLowerCase()} box`
+    this.robotActivityLevel.set(45);
+
+
+    this.setAdaptiveMessage(
+
+      `Grasping the ${box.label.toLowerCase()} box`,
+
+      `Picking up ${box.label.toLowerCase()}`,
+
+      'Picking up box'
+
     );
 
 
     this.gripperClosed.set(true);
 
 
-    await this.delay(450);
+    await this.taskDelay(450);
 
 
     /*
-     * -------------------------------------
+     * =================================
      * STEP 3
-     * LIFT BOX
-     * -------------------------------------
+     * LIFT
+     * =================================
      */
 
-    this.statusMessage.set(
-      `Lifting the ${box.label.toLowerCase()} box`
+    this.robotActivityLevel.set(85);
+
+
+    this.setAdaptiveMessage(
+
+      `Lifting the ${box.label.toLowerCase()} box`,
+
+      `Lifting ${box.label.toLowerCase()} box`,
+
+      'Lifting box'
+
     );
 
 
@@ -606,32 +950,44 @@ export class WorkspaceComponent {
       '0 0 -40'
     );
 
+
     this.elbowRotation.set(
       '0 0 -65'
     );
+
 
     this.wristRotation.set(
       '0 0 45'
     );
 
 
-    await this.delay(900);
+    await this.taskDelay(900);
 
 
     /*
-     * -------------------------------------
+     * =================================
      * STEP 4
-     * MOVE ABOVE STACK TARGET
-     * -------------------------------------
+     * TRANSPORT
+     * =================================
      */
 
-    this.statusMessage.set(
-      `Moving ${box.label.toLowerCase()} box to stack level ${level + 1}`
+    this.robotActivityLevel.set(100);
+
+
+    this.setAdaptiveMessage(
+
+      `Moving ${box.label.toLowerCase()} box to stack level ${level + 1}`,
+
+      `Moving ${box.label.toLowerCase()} to level ${level + 1}`,
+
+      'Moving box'
+
     );
 
 
     const hoverHeight =
-      1.62 + (level * this.boxHeight);
+      1.62 +
+      (level * this.boxHeight);
 
 
     this.setBoxPosition(
@@ -642,35 +998,42 @@ export class WorkspaceComponent {
     );
 
 
-    /*
-     * Approximate placing pose.
-     */
-
     this.shoulderRotation.set(
       '0 0 10'
     );
 
+
     this.elbowRotation.set(
       '0 0 -115'
     );
+
 
     this.wristRotation.set(
       '0 0 -50'
     );
 
 
-    await this.delay(1000);
+    await this.taskDelay(1000);
 
 
     /*
-     * -------------------------------------
+     * =================================
      * STEP 5
-     * LOWER BOX
-     * -------------------------------------
+     * PLACE
+     * =================================
      */
 
-    this.statusMessage.set(
-      `Placing the ${box.label.toLowerCase()} box`
+    this.robotActivityLevel.set(75);
+
+
+    this.setAdaptiveMessage(
+
+      `Placing the ${box.label.toLowerCase()} box`,
+
+      `Placing ${box.label.toLowerCase()} box`,
+
+      'Placing box'
+
     );
 
 
@@ -692,36 +1055,54 @@ export class WorkspaceComponent {
     );
 
 
-    await this.delay(800);
+    await this.taskDelay(800);
 
 
     /*
-     * -------------------------------------
+     * =================================
      * STEP 6
      * RELEASE
-     * -------------------------------------
+     * =================================
      */
 
-    this.statusMessage.set(
-      `Releasing the ${box.label.toLowerCase()} box`
+    this.robotActivityLevel.set(30);
+
+
+    this.setAdaptiveMessage(
+
+      `Releasing the ${box.label.toLowerCase()} box`,
+
+      `Releasing ${box.label.toLowerCase()} box`,
+
+      'Box placed'
+
     );
 
 
     this.gripperClosed.set(false);
 
 
-    await this.delay(400);
+    await this.taskDelay(400);
 
 
     /*
-     * -------------------------------------
+     * =================================
      * STEP 7
      * MOVE AWAY
-     * -------------------------------------
+     * =================================
      */
 
-    this.statusMessage.set(
-      `${box.label} box placed at level ${level + 1}`
+    this.robotActivityLevel.set(80);
+
+
+    this.setAdaptiveMessage(
+
+      `${box.label} box placed at level ${level + 1}`,
+
+      `${box.label} placed`,
+
+      'Step complete'
+
     );
 
 
@@ -729,23 +1110,25 @@ export class WorkspaceComponent {
       '0 0 -20'
     );
 
+
     this.elbowRotation.set(
       '0 0 -70'
     );
+
 
     this.wristRotation.set(
       '0 0 45'
     );
 
 
-    await this.delay(700);
+    await this.taskDelay(700);
 
   }
 
 
   /*
    * =====================================
-   * RESET
+   * RESET TASK
    * =====================================
    */
 
@@ -757,6 +1140,7 @@ export class WorkspaceComponent {
 
 
     this.resetBoxPositions();
+
 
     this.stackOrder.set([
       'blue',
@@ -771,13 +1155,97 @@ export class WorkspaceComponent {
 
     this.gripperClosed.set(false);
 
+
     this.moveRobotHome();
 
 
-    this.currentState.set('idle');
+    this.currentState.set(
+      'idle'
+    );
 
-    this.statusMessage.set(
-      'Choose a stacking order and start the task'
+
+    this.robotActivityLevel.set(5);
+
+
+    this.setAdaptiveMessage(
+
+      'Choose a stacking order and start the task',
+
+      'Choose the order, then press Start',
+
+      'Choose an order and press Start'
+
+    );
+
+  }
+
+
+  /*
+   * =====================================
+   * ADAPTIVE MESSAGE HELPER
+   * =====================================
+   */
+
+  private setAdaptiveMessage(
+    calm: string,
+    moderate: string,
+    stressed: string
+  ): void {
+
+    switch (this.currentUserState()) {
+
+      case 'moderate':
+
+        this.statusMessage.set(
+          moderate
+        );
+
+        break;
+
+
+      case 'stressed':
+
+        this.statusMessage.set(
+          stressed
+        );
+
+        break;
+
+
+      default:
+
+        this.statusMessage.set(
+          calm
+        );
+
+    }
+
+  }
+
+
+  /*
+   * =====================================
+   * ADAPTIVE TASK SPEED
+   * =====================================
+   */
+
+  private taskDelay(
+    milliseconds: number
+  ): Promise<void> {
+
+    const multiplier =
+      this.currentUserConfig()
+        .speedMultiplier;
+
+
+    const adaptedDelay =
+      Math.round(
+        milliseconds * multiplier
+      );
+
+
+    return this.delay(
+      adaptedDelay
     );
 
   }
@@ -793,10 +1261,18 @@ export class WorkspaceComponent {
     color: BoxColor
   ): string {
 
+    const duration =
+      Math.round(
+        750 *
+        this.currentUserConfig()
+          .speedMultiplier
+      );
+
+
     return `
       property: position;
       to: ${this.boxPositions()[color]};
-      dur: 750;
+      dur: ${duration};
       easing: easeInOutQuad
     `;
 
@@ -863,9 +1339,13 @@ export class WorkspaceComponent {
 
 
     return {
+
       x: values[0],
+
       y: values[1],
+
       z: values[2]
+
     };
 
   }
@@ -883,9 +1363,11 @@ export class WorkspaceComponent {
       '0 0 -10'
     );
 
+
     this.elbowRotation.set(
       '0 0 -55'
     );
+
 
     this.wristRotation.set(
       '0 0 65'
@@ -896,7 +1378,7 @@ export class WorkspaceComponent {
 
   /*
    * =====================================
-   * DELAY
+   * BASIC DELAY
    * =====================================
    */
 
